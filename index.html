@@ -73,6 +73,22 @@
         .btn-ctrl:active { background: rgba(255,255,255,0.5); }
         .hidden-cell { visibility: hidden; }
         .jump-btn { width: 70px; height: 70px; font-size: 0.9rem; border-radius: 20px;}
+
+        /* ปรับขนาดปุ่มสำหรับ Tablet (หน้าจอ 768px ขึ้นไป) */
+        @media (min-width: 768px) {
+            .d-pad {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 80px);
+                gap: 8px;
+            }
+            .jump-btn {
+                width: 90px;
+                height: 90px;
+                font-size: 1.1rem;
+                border-radius: 25px;
+            }
+            .btn-ctrl { font-size: 1.8rem; }
+        }
     </style>
 </head>
 <body class="bg-blue-100">
@@ -88,27 +104,13 @@
         <span id="wave-text">กำลังรอผู้เล่น...</span>
     </div>
 
-    <!-- แถบแสดงพลังชีวิตและสเตตัส (HUD) -->
-    <div id="hud-stats" class="hidden fixed top-24 left-5 pointer-events-none z-40 w-64 space-y-3">
-        <!-- เลเวล เหรียญ กระสุน -->
-        <div class="bg-black/50 p-3 rounded-xl backdrop-blur-sm border border-white/20 mb-4">
-            <div class="text-yellow-400 font-bold text-lg drop-shadow-md">🪙 เหรียญ: <span id="coin-text">0</span></div>
-            <div class="text-red-400 font-bold text-lg drop-shadow-md">💣 กระสุน: <span id="ammo-text">0</span></div>
-            <div class="text-purple-400 font-bold text-lg drop-shadow-md">⭐ เลเวล: <span id="level-text">1</span></div>
-            <div class="text-white text-xs mt-1">ดาเมจ: <span id="damage-text">20</span> | ความเร็ว: <span id="spd-text">ปกติ</span></div>
-        </div>
-
-        <div>
-            <div class="text-white font-bold text-sm" style="text-shadow: 1px 1px 2px black;">ฐานพลังงาน (Base) <span id="base-hp-text">1000</span>/1000</div>
-            <div class="w-full bg-gray-800 h-4 rounded-full border-2 border-gray-900 overflow-hidden">
-                <div id="base-hp-bar" class="bg-blue-500 h-full transition-all" style="width: 100%"></div>
-            </div>
-        </div>
-        <div>
-            <div class="text-white font-bold text-sm" style="text-shadow: 1px 1px 2px black;">หุ่นยนต์ (Player) <span id="player-hp-text">100</span>/100</div>
-            <div class="w-full bg-gray-800 h-4 rounded-full border-2 border-gray-900 overflow-hidden">
-                <div id="player-hp-bar" class="bg-green-500 h-full transition-all" style="width: 100%"></div>
-            </div>
+    <!-- แถบแสดงสถานะ (ย้ายไปมุมขวาบนแบบกะทัดรัด) -->
+    <div id="hud-stats" class="hidden fixed top-20 right-5 pointer-events-none z-40 text-right">
+        <div class="bg-black/60 p-4 rounded-xl backdrop-blur-md border border-white/20 inline-block text-left shadow-lg">
+            <div class="text-yellow-400 font-bold text-lg drop-shadow-md mb-1">🪙 เหรียญ: <span id="coin-text">0</span></div>
+            <div class="text-red-400 font-bold text-lg drop-shadow-md mb-1">💣 กระสุน: <span id="ammo-text">0</span></div>
+            <div class="text-purple-400 font-bold text-lg drop-shadow-md mb-2">⭐ เลเวล: <span id="level-text">1</span></div>
+            <div class="text-white text-xs border-t border-white/30 pt-2">ดาเมจ: <span id="damage-text">20</span> | ความเร็วตี: <span id="spd-text">ปกติ</span></div>
         </div>
     </div>
 
@@ -121,11 +123,11 @@
         </div>
     </div>
 
-    <div class="controls-hint hidden md:block">
+    <div class="controls-hint hidden lg:block">
         W A S D เดิน | Space ยิงระเบิด | ลากเมาส์หมุนกล้อง<br><b>คลิกที่ฐานเพื่อเปิดร้านค้า (ซื้อกระสุน 10 เหรียญ / อัปเลเวล 100 เหรียญ)</b>
     </div>
 
-    <div class="mobile-layout md:hidden">
+    <div class="mobile-layout lg:hidden">
         <div class="d-pad">
             <div class="hidden-cell"></div>
             <div id="btn-up" class="btn-ctrl">↑</div>
@@ -143,7 +145,7 @@
         </div>
     </div>
 
-    <!-- ปุ่มตั้งค่า -->
+    <!-- ปุ่มตั้งค่า (ย้ายขยับลงมานิดหน่อยเพื่อไม่ให้ชนกับ Stats ถ้าจำเป็น) -->
     <button id="settings-btn" class="absolute top-5 right-5 z-40 bg-gray-800/70 text-white p-3 rounded-full hover:bg-gray-700 backdrop-blur-sm transition-all shadow-lg border border-white/20 pointer-events-auto">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -371,6 +373,10 @@
         
         let firebaseUnsubs = []; 
 
+        // HP Bars
+        let baseHpBarGroup, baseHpBarFg;
+        let playerHpBarGroup, playerHpBarFg;
+
         // -----------------------------------------
         // ระบบเสียงสังเคราะห์ (Web Audio API)
         // -----------------------------------------
@@ -406,6 +412,13 @@
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
                 osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'smash') { // เสียงบอสปลาหมึกฟาดหนวด
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.exponentialRampToValueAtTime(20, now + 0.2);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
             } else if (type === 'bite') {
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(400, now);
@@ -499,7 +512,6 @@
                 const roomRef = ref(database, `rooms/${roomName}`);
                 const snap = await get(roomRef);
                 
-                // ตรวจสอบห้องเดิม ถ้ามีอยู่และ"มีคนกำลังเล่น" ไม่อนุญาตให้สร้างทับ
                 if (snap.exists()) {
                     const roomData = snap.val();
                     if (roomData.gameState && roomData.players && Object.keys(roomData.players).length > 0) {
@@ -509,7 +521,6 @@
                     }
                 }
                 
-                // ถ้ายอมให้สร้างทับได้ (ไม่มีห้องอยู่ หรือ มีห้องแต่ผู้เล่นเป็น 0)
                 await set(ref(database, `rooms/${roomName}/gameState`), {
                     createdAt: Date.now(),
                     isStarted: false,
@@ -520,7 +531,6 @@
                     baseHp: maxBaseHp
                 });
                 
-                // ล้างมอนสเตอร์เก่าที่ค้างในฐานข้อมูล (ถ้ามี)
                 await remove(ref(database, `rooms/${roomName}/enemies`));
                 
                 joinRoom(roomName);
@@ -569,14 +579,11 @@
             showAlert(`เข้าร่วมห้อง [${roomId}] สำเร็จ!`);
         }
         
-        // ปุ่มกลับไปหน้าเลือกห้องเมื่อเกมจบทันที
         document.getElementById('btn-back-to-rooms').addEventListener('click', () => {
             if (currentRoomId && currentUserUid && database) {
-                // ลบตัวเราออกจากห้องที่เพิ่งจบ
                 remove(ref(database, `rooms/${currentRoomId}/players/${currentUserUid}`)).catch(()=>{});
             }
             
-            // ถอด Listener ทุกอย่างของ Firebase เพื่อลดปัญหาโหลดซ้อนเมื่อเข้าห้องใหม่
             firebaseUnsubs.forEach(unsub => unsub());
             firebaseUnsubs = [];
             
@@ -586,7 +593,6 @@
             currentRoomId = null;
             isHost = false;
             
-            // สลับ UI กลับไปหน้าเลือกห้อง
             document.getElementById('game-over-screen').classList.add('hidden');
             document.getElementById('hud-stats').classList.add('hidden');
             document.getElementById('top-hud').classList.add('hidden');
@@ -594,14 +600,13 @@
             document.getElementById('lobby-screen').classList.add('hidden');
             document.getElementById('room-selection-screen').classList.remove('hidden');
             
-            // ล้าง Entity หรือสิ่งที่หลงเหลือในฉาก
-            for (let e of enemies) scene.remove(e.mesh); enemies = [];
+            for (let e of enemies) { scene.remove(e.mesh); if(e.mesh.userData.hpBarGroup) scene.remove(e.mesh.userData.hpBarGroup); }
+            enemies = [];
             for (let id in otherPlayers) removeOtherPlayer(id);
             for (let p of playerProjectiles) scene.remove(p.mesh); playerProjectiles = [];
             for (let e of explosions) scene.remove(e.mesh); explosions = [];
             for (let p of particles) scene.remove(p.mesh); particles = [];
             
-            // รีเซ็ตค่าผู้เล่นพื้นฐาน
             playerHp = maxPlayerHp; baseHp = maxBaseHp; coins = 0; playerAmmo = 0; playerLevel = 1; playerDamage = 20; attackSpeedMs = 500;
             player.position.set(5, 0, 0); playerVelocity.set(0, 0, 0); player.visible = true;
             
@@ -613,7 +618,6 @@
             
             updateHUD();
             
-            // รีเซ็ตปุ่มที่กดค้นหา/สร้างห้องให้เป็นปกติ
             document.getElementById('btn-create-room').disabled = false;
             document.getElementById('btn-create-room').textContent = "สร้างห้อง";
             document.getElementById('btn-join-room').disabled = false;
@@ -681,6 +685,25 @@
             animate();
         };
 
+        // ฟังก์ชันสร้างหลอดเลือดแบบ 3D ทั่วไป
+        function createHPBarMesh(w, h, bgColor = 0xff0000, fgColor = 0x00ff00) {
+            const group = new THREE.Group();
+            
+            const bgGeo = new THREE.PlaneGeometry(w, h);
+            const bgMat = new THREE.MeshBasicMaterial({ color: bgColor, side: THREE.DoubleSide });
+            group.add(new THREE.Mesh(bgGeo, bgMat));
+
+            const fgGeo = new THREE.PlaneGeometry(w, h);
+            fgGeo.translate(w / 2, 0, 0); 
+            const fgMat = new THREE.MeshBasicMaterial({ color: fgColor, side: THREE.DoubleSide, depthTest: false }); 
+            const fgMesh = new THREE.Mesh(fgGeo, fgMat);
+            fgMesh.position.x = -w / 2;
+            fgMesh.position.z = 0.01; 
+            group.add(fgMesh);
+
+            return { group, fg: fgMesh };
+        }
+
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87ceeb);
@@ -726,7 +749,7 @@
 
             setupControls();
             setupSettings();
-            setupShop(); // เริ่มระบบร้านค้า
+            setupShop(); 
 
             window.addEventListener('resize', onWindowResize, false);
         }
@@ -808,6 +831,13 @@
 
             scene.add(baseGroup);
             colliders.push({ type: 'base', x: 0, z: 0, r: 3.5 });
+
+            // สร้างหลอดเลือดฐานให้อยู่บนสุด
+            const hpBar = createHPBarMesh(4, 0.4, 0xff0000, 0x00aaff); 
+            baseHpBarGroup = hpBar.group;
+            baseHpBarFg = hpBar.fg;
+            baseHpBarGroup.position.set(0, 8, 0); 
+            scene.add(baseHpBarGroup);
         }
 
         function createPaths() {
@@ -917,9 +947,12 @@
             playSound('explode');
         }
 
-        // --- ระบบสร้างหน้าตาแมลงและบอส พร้อมขีดเลือด (HP Bar) ---
         function buildBugMesh(colorHex, isBoss) {
             const group = new THREE.Group();
+            
+            group.userData.tentacles = [];
+            group.userData.tentacleAngles = [];
+
             if (isBoss) {
                 const bodyGeo = new THREE.SphereGeometry(2, 16, 16);
                 bodyGeo.scale(1, 1.5, 1);
@@ -940,7 +973,11 @@
                     tentacle.position.set(Math.cos(tAngle)*1.5, 1.5, Math.sin(tAngle)*1.5);
                     tentacle.rotation.x = Math.cos(tAngle) * 0.5;
                     tentacle.rotation.z = -Math.sin(tAngle) * 0.5;
-                    tentacle.castShadow = true; group.add(tentacle);
+                    tentacle.castShadow = true; 
+                    group.add(tentacle);
+
+                    group.userData.tentacles.push(tentacle);
+                    group.userData.tentacleAngles.push(tAngle);
                 }
             } else {
                 const bugGeo = new THREE.SphereGeometry(0.6, 8, 8);
@@ -954,32 +991,14 @@
                 const m2 = new THREE.Mesh(mouthGeo, mouthMat); m2.position.set(-0.3, 0, 0.5); m2.rotation.x = Math.PI / 2; m2.rotation.z = Math.PI / 8; group.add(m2);
             }
 
-            // สร้างส่วนของขีดเลือด (HP Bar) ลอยอยู่บนหัว
-            const hpBarGroup = new THREE.Group();
-            hpBarGroup.position.y = isBoss ? 6.5 : 1.5; 
-            
             const barW = isBoss ? 3.0 : 1.2;
             const barH = isBoss ? 0.3 : 0.15;
-
-            // พื้นหลังของขีดเลือด (สีแดง)
-            const bgGeo = new THREE.PlaneGeometry(barW, barH);
-            const bgMat = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-            const bgMesh = new THREE.Mesh(bgGeo, bgMat);
-            hpBarGroup.add(bgMesh);
-
-            // ขีดเลือดด้านหน้า (สีเขียว)
-            const fgGeo = new THREE.PlaneGeometry(barW, barH);
-            fgGeo.translate(barW / 2, 0, 0); // ย้ายจุดหมุนไปที่ขอบซ้าย เพื่อให้ย่อขนาดจากขวาไปซ้าย
-            const fgMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide, depthTest: false }); // ให้แสดงทับเสมอ
-            const fgMesh = new THREE.Mesh(fgGeo, fgMat);
-            fgMesh.position.x = -barW / 2;
-            fgMesh.position.z = 0.02; // ยื่นมาข้างหน้านิดนึงเพื่อไม่ให้ซ้อนทับกัน
-            hpBarGroup.add(fgMesh);
-
-            group.userData.hpBarGroup = hpBarGroup;
-            group.userData.hpBarFg = fgMesh;
-            group.add(hpBarGroup);
-
+            const hpBar = createHPBarMesh(barW, barH);
+            
+            group.userData.hpBarGroup = hpBar.group;
+            group.userData.hpBarFg = hpBar.fg;
+            
+            // หมายเหตุ: ไม่ add ใส่ group ของศัตรูโดยตรงแล้ว เพราะจะทำให้มันหมุนตอนศัตรูหันหน้า จะนำไปแอดลง Scene แทน
             return group;
         }
 
@@ -1007,10 +1026,10 @@
 
             const y = isBoss ? -5 : -0.5;
 
-            // เพิ่มเข้า Local array ของ Host ก่อน
             const mesh = buildBugMesh(colorHex, isBoss);
             mesh.position.set(x, y, z);
             scene.add(mesh);
+            if (mesh.userData.hpBarGroup) scene.add(mesh.userData.hpBarGroup);
 
             const newEnemy = {
                 id, mesh, isBoss, colorHex, maxHp, speed,
@@ -1018,7 +1037,6 @@
             };
             enemies.push(newEnemy);
 
-            // อัพเดทขึ้น Firebase
             update(ref(database, `rooms/${currentRoomId}/enemies/${id}`), {
                 id, x, y, z, rotY: 0, hp: maxHp, maxHp, isBoss, colorHex, speed
             });
@@ -1077,7 +1095,7 @@
             const bodyGeo = new THREE.SphereGeometry(0.65, 32, 32);
             bodyGeo.scale(1, 1.4, 1); 
             const chassisCenter = new THREE.Mesh(bodyGeo, playerBodyMat);
-            chassisCenter.position.y = 0.91; // ปรับลงมาให้แนบพื้น
+            chassisCenter.position.y = 0.91; 
             chassisCenter.castShadow = true;
             chassisGroup.add(chassisCenter);
 
@@ -1091,8 +1109,6 @@
             chassisGroup.add(gunGroup);
 
             player.add(chassisGroup);
-
-            // เอาล้อออกเพื่อแนบติดพื้น
 
             const headGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
             const headMat = new THREE.MeshStandardMaterial({ color: 0x757575, metalness: 0.8 });
@@ -1121,9 +1137,14 @@
             hammerGroup.rotation.x = -Math.PI / 4;
             player.add(hammerGroup);
             
-            // ตั้งค่าจุดเริ่มให้เป็น y=0 แนบชิดกับพื้น
             player.position.set(5, 0, 0); 
             scene.add(player);
+
+            // สร้างหลอดเลือดส่วนตัว
+            const hpBar = createHPBarMesh(2, 0.2);
+            playerHpBarGroup = hpBar.group;
+            playerHpBarFg = hpBar.fg;
+            scene.add(playerHpBarGroup);
         }
 
         function shoot() {
@@ -1176,31 +1197,28 @@
             spawnParticles(player.position, 0x9e9e9e, 40, 2.5); 
             
             player.visible = false; 
-            player.position.set(5, 0, 0); // แนบพื้นเมื่อตาย/สปาวน์ใหม่
+            player.position.set(5, 0, 0); 
             playerVelocity.set(0, 0, 0);
             
             document.getElementById('respawn-hud').classList.remove('hidden');
         }
 
-        // แจ้งการโจมตีไปที่ Firebase (ทุกคนยิงได้ Host และ Client)
         function dealDamageToEnemy(enemyId, dmg) {
             let enemy = enemies.find(e => e.id === enemyId);
             if (!enemy) return;
             
             enemy.hp -= dmg;
             
-            // เอฟเฟกต์กะพริบสีแดงเมื่อโดนตี ให้เห็นชัดเจนว่าเลือดลด
             if (enemy.mesh && enemy.mesh.children[0]) {
                 const bodyMat = enemy.mesh.children[0].material;
                 if (bodyMat) {
-                    bodyMat.emissive.setHex(0xaa0000); // เปลี่ยนสีเรืองแสงเป็นสีแดง
+                    bodyMat.emissive.setHex(0xaa0000); 
                     setTimeout(() => {
-                        if (bodyMat) bodyMat.emissive.setHex(0x000000); // คืนค่ากลับหลัง 100ms
+                        if (bodyMat) bodyMat.emissive.setHex(0x000000); 
                     }, 100);
                 }
             }
             
-            // อัปเดตขีดเลือดในเครื่องตัวเองทันที (ไม่ต้องรอรอบ Firebase)
             if (enemy.mesh.userData.hpBarFg) {
                 let hpRatio = enemy.hp / (enemy.maxHp || 1);
                 if(isNaN(hpRatio)) hpRatio = 1;
@@ -1208,23 +1226,21 @@
             }
 
             if (enemy.hp <= 0) {
-                // คนที่ยิงตายจะได้เหรียญ และอัปเดต HUD ทันที
                 coins += enemy.isBoss ? 100 : 10;
                 playSound('coin');
                 updateHUD();
                 
-                // ลบออกจาก Firebase ทันที
                 remove(ref(database, `rooms/${currentRoomId}/enemies/${enemy.id}`)).catch(()=>{});
                 
-                // ลบออกจากเครื่องตัวเองแบบเฉียบขาดทันที (กันบั๊กผีดิบค้างหน้าจอ)
                 scene.remove(enemy.mesh);
+                if(enemy.mesh.userData.hpBarGroup) scene.remove(enemy.mesh.userData.hpBarGroup);
+
                 playSound('explode');
                 spawnParticles(enemy.mesh.position, enemy.colorHex, 15, 2.0);
                 let idx = enemies.indexOf(enemy);
                 if (idx > -1) enemies.splice(idx, 1);
 
             } else {
-                // อัพเดท HP บน Firebase
                 update(ref(database, `rooms/${currentRoomId}/enemies/${enemy.id}`), { hp: enemy.hp }).catch(()=>{});
             }
         }
@@ -1251,6 +1267,7 @@
                 const btn = document.getElementById(id);
                 btn.addEventListener('touchstart', (e) => { e.preventDefault(); if(window.isPlaying && !gameOver && !isDead) moveState[stateKey] = true; });
                 btn.addEventListener('touchend', () => moveState[stateKey] = false);
+                btn.addEventListener('touchcancel', () => moveState[stateKey] = false);
                 btn.addEventListener('mousedown', () => { if(window.isPlaying && !gameOver && !isDead) moveState[stateKey] = true; });
                 btn.addEventListener('mouseup', () => moveState[stateKey] = false);
                 btn.addEventListener('mouseleave', () => moveState[stateKey] = false);
@@ -1293,13 +1310,11 @@
 
                 if (clientX !== undefined && clientY !== undefined) {
                     let dist = Math.abs(clientX - clickStartPos.x) + Math.abs(clientY - clickStartPos.y);
-                    // เปิดร้านค้าเมื่อคลิกที่ฐาน
                     if (dist < 10 && baseGroup) { 
                         mouse.x = (clientX / window.innerWidth) * 2 - 1; mouse.y = -(clientY / window.innerHeight) * 2 + 1;
                         raycaster.setFromCamera(mouse, camera);
                         const intersects = raycaster.intersectObject(baseGroup, true);
                         if (intersects.length > 0 && Math.sqrt(player.position.x**2 + player.position.z**2) < 8) {
-                            // อัปเดตจำนวนเหรียญที่แสดงในร้านค้า แล้วเปิดหน้าต่าง
                             document.getElementById('shop-coins').innerText = coins;
                             document.getElementById('shop-modal').classList.remove('hidden');
                         }
@@ -1314,7 +1329,6 @@
         function initMultiplayer() {
             if (!database || !currentUserUid || !currentRoomId) return;
 
-            // 1. ซิงค์ Game State
             firebaseUnsubs.push(
                 onValue(ref(database, `rooms/${currentRoomId}/gameState`), (snap) => {
                     const data = snap.val();
@@ -1330,13 +1344,11 @@
                             if (baseHp <= 0 && !gameOver) triggerGameOver();
                         }
 
-                        // บังคับให้แสดงหน้าต่าง Lobby อย่างถูกต้องเมื่อเกมยังไม่เริ่ม
                         if (gamePhase === 'LOBBY') {
                             document.getElementById('lobby-screen').classList.remove('hidden', 'opacity-0', 'pointer-events-none');
                             updateLobbyUI();
                         } 
                         else if (data.isStarted && !document.getElementById('lobby-screen').classList.contains('hidden')) {
-                            // ปิดหน้าต่าง Lobby อย่างถูกต้องหลังจากเริ่มเกม
                             document.getElementById('lobby-screen').classList.add('opacity-0', 'pointer-events-none');
                             setTimeout(() => document.getElementById('lobby-screen').classList.add('hidden'), 500);
                             showAlert("🚀 ภารกิจเริ่มต้น! เตรียมรับมือแมลงใน 20 วินาที!");
@@ -1345,7 +1357,6 @@
                 })
             );
 
-            // 2. ซิงค์ Players
             const playersRef = ref(database, `rooms/${currentRoomId}/players`);
             firebaseUnsubs.push(
                 onValue(playersRef, (snapshot) => {
@@ -1363,7 +1374,6 @@
                 })
             );
 
-            // 3. ซิงค์ Enemies (บอท/แมลง)
             firebaseUnsubs.push(
                 onValue(ref(database, `rooms/${currentRoomId}/enemies`), (snap) => {
                     const data = snap.val() || {};
@@ -1379,35 +1389,29 @@
         function syncEnemiesWithLocal(serverData) {
             serverData = serverData || {};
 
-            // 1. ลบตัวที่ตายแล้วออกให้หมดก่อน (ไม่มีบน Server หรือข้อมูลพัง/เลือดหมด)
             for (let i = enemies.length - 1; i >= 0; i--) {
                 let e = enemies[i];
                 let sEnemy = serverData[e.id];
                 
-                // ถ้าไม่มีบนเซิร์ฟเวอร์ หรือมีแต่ไม่มีเลือด (บั๊กซอมบี้) ให้ลบทิ้งถาวร
                 if (!sEnemy || sEnemy.hp === undefined || sEnemy.hp <= 0) {
                     scene.remove(e.mesh);
+                    if(e.mesh.userData.hpBarGroup) scene.remove(e.mesh.userData.hpBarGroup);
                     
-                    // ป้องกันเสียงระเบิดดังซ้ำซ้อนถ้าเราเพิ่งลบมันไปแล้วจากหน้าจอเรา
-                    // แต่ถ้ามันโผล่มาเป็นซอมบี้แปลกๆ ก็ให้เอฟเฟกต์ระเบิดโชว์
                     if (!sEnemy || (sEnemy && sEnemy.hp <= 0)) {
                         playSound('explode');
                         spawnParticles(e.mesh.position, e.colorHex, 15, 2.0);
                     }
                     enemies.splice(i, 1);
                     
-                    // ให้ Host ช่วยลบขยะตกค้างใน Firebase อีกแรง
                     if (isHost && sEnemy) {
                         remove(ref(database, `rooms/${currentRoomId}/enemies/${e.id}`)).catch(()=>{});
                     }
                 }
             }
 
-            // 2. เช็คและสร้างตัวใหม่ / อัปเดตตัวเก่าที่ยังมีชีวิต
             for (const id in serverData) {
                 const sEnemy = serverData[id];
 
-                // ข้ามข้อมูลที่พัง หรือเลือดหมดไปแล้วอย่างเด็ดขาด (สกัดบั๊กซอมบี้)
                 if (sEnemy.hp === undefined || sEnemy.hp <= 0) {
                     if (isHost) remove(ref(database, `rooms/${currentRoomId}/enemies/${id}`)).catch(()=>{});
                     continue;
@@ -1416,11 +1420,11 @@
                 let localEnemy = enemies.find(e => e.id === id);
 
                 if (!localEnemy) {
-                    // สร้างใหม่บน Client
                     const mesh = buildBugMesh(sEnemy.colorHex, sEnemy.isBoss);
                     mesh.position.set(sEnemy.x, sEnemy.y, sEnemy.z);
                     mesh.rotation.y = sEnemy.rotY;
                     scene.add(mesh);
+                    if(mesh.userData.hpBarGroup) scene.add(mesh.userData.hpBarGroup);
                     
                     enemies.push({
                         id, mesh, 
@@ -1431,10 +1435,8 @@
                         speed: sEnemy.speed
                     });
                 } else {
-                    // อัปเดตข้อมูลเลือดจากเซิร์ฟเวอร์
                     localEnemy.hp = sEnemy.hp;
                     if (!isHost) {
-                        // Client เลื่อนตาม Server ทันที
                         localEnemy.mesh.position.set(sEnemy.x, sEnemy.y, sEnemy.z);
                         localEnemy.mesh.rotation.y = sEnemy.rotY;
                     }
@@ -1462,8 +1464,6 @@
                 const chassisCenter = new THREE.Mesh(bodyGeo, bodyMat); chassisCenter.position.y = 0.91; chassisCenter.castShadow = true; chassisGroup.add(chassisCenter);
                 pGroup.add(chassisGroup);
 
-                // เอาล้อออกเพื่อแนบพื้น
-
                 const headGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
                 const headMat = new THREE.MeshStandardMaterial({ color: 0x757575 });
                 const head = new THREE.Mesh(headGeo, headMat); head.position.y = 2.01; pGroup.add(head);
@@ -1477,17 +1477,37 @@
 
                 const nameTag = makeTextSprite(data.name || "Ally"); pGroup.add(nameTag);
                 scene.add(pGroup);
-                otherPlayers[id] = { model: pGroup, bodyMat: bodyMat, name: data.name, lastUpdate: Date.now() };
+
+                // สร้างหลอดเลือดเพื่อนคนอื่น
+                const hpBar = createHPBarMesh(2, 0.2);
+                scene.add(hpBar.group);
+
+                otherPlayers[id] = { model: pGroup, bodyMat: bodyMat, name: data.name, hpBarGroup: hpBar.group, hpBarFg: hpBar.fg, lastUpdate: Date.now() };
             }
             const p = otherPlayers[id];
             
             if (data.color && p.bodyMat.color.getHex() !== parseInt(data.color)) { p.bodyMat.color.setHex(parseInt(data.color)); }
 
-            p.model.position.set(data.x, data.y, data.z); p.model.rotation.y = data.rotationY; p.model.visible = !data.isDead; 
+            p.model.position.set(data.x, data.y, data.z); 
+            p.model.rotation.y = data.rotationY; 
+            p.model.visible = !data.isDead; 
+
+            if (p.hpBarGroup) {
+                p.hpBarGroup.position.copy(p.model.position).setY(p.model.position.y + 3.2);
+                p.hpBarGroup.lookAt(camera.position);
+                p.hpBarGroup.visible = !data.isDead;
+                if (data.hp !== undefined) {
+                    p.hpBarFg.scale.x = Math.max(0.001, data.hp / maxPlayerHp);
+                }
+            }
         }
 
         function removeOtherPlayer(id) {
-            if (otherPlayers[id]) { scene.remove(otherPlayers[id].model); delete otherPlayers[id]; }
+            if (otherPlayers[id]) { 
+                scene.remove(otherPlayers[id].model); 
+                if(otherPlayers[id].hpBarGroup) scene.remove(otherPlayers[id].hpBarGroup);
+                delete otherPlayers[id]; 
+            }
         }
 
         function broadcastPosition() {
@@ -1496,7 +1516,7 @@
                 const myRef = ref(database, `rooms/${currentRoomId}/players/${currentUserUid}`);
                 set(myRef, {
                     name: currentUserName, x: player.position.x, y: player.position.y, z: player.position.z,
-                    rotationY: player.rotation.y, isDead: isDead, color: playerColorHex, timestamp: Date.now()
+                    rotationY: player.rotation.y, isDead: isDead, color: playerColorHex, hp: playerHp, timestamp: Date.now()
                 }).catch(()=>{});
             } catch (e) {}
         }
@@ -1525,14 +1545,10 @@
         }
 
         function updateHUD() {
-            document.getElementById('base-hp-bar').style.width = Math.max(0, (baseHp / maxBaseHp) * 100) + '%';
-            document.getElementById('base-hp-text').innerText = Math.max(0, Math.ceil(baseHp));
-            
-            document.getElementById('player-hp-bar').style.width = Math.max(0, (playerHp / maxPlayerHp) * 100) + '%';
-            document.getElementById('player-hp-text').innerText = Math.max(0, Math.floor(playerHp));
-            
-            document.getElementById('coin-text').innerText = coins; document.getElementById('ammo-text').innerText = playerAmmo;
-            document.getElementById('level-text').innerText = playerLevel; document.getElementById('damage-text').innerText = playerDamage;
+            document.getElementById('coin-text').innerText = coins; 
+            document.getElementById('ammo-text').innerText = playerAmmo;
+            document.getElementById('level-text').innerText = playerLevel; 
+            document.getElementById('damage-text').innerText = playerDamage;
             
             let spdStatus = "ปกติ"; if (attackSpeedMs <= 300) spdStatus = "เร็วมาก"; else if (attackSpeedMs <= 400) spdStatus = "เร็ว";
             document.getElementById('spd-text').innerText = spdStatus;
@@ -1577,7 +1593,6 @@
                             spawnEnemy(true, 0); spawnEnemy(true, Math.PI/2); spawnEnemy(true, Math.PI); spawnEnemy(true, Math.PI*1.5);
                             bossesSpawned = true;
                         } else if (enemies.length === 0) {
-                            // ปรับเวลาพักการโจมตีเป็น 2 นาที (120 วินาที)
                             setFirebaseGameState({ phase: 'WAIT', phaseTimer: 120 });
                         }
                     } 
@@ -1608,6 +1623,23 @@
                     if (respawnTimer <= 0) { isDead = false; playerHp = maxPlayerHp; player.visible = true; document.getElementById('respawn-hud').classList.add('hidden'); }
                 }
 
+                // -------- อัปเดตหลอดเลือดฐาน และผู้เล่น --------
+                if (baseHpBarGroup) {
+                    baseHpBarGroup.lookAt(camera.position);
+                    baseHpBarFg.scale.x = Math.max(0.001, baseHp / maxBaseHp);
+                }
+                
+                if (playerHpBarGroup) {
+                    if (!isDead) {
+                        playerHpBarGroup.visible = true;
+                        playerHpBarGroup.position.copy(player.position).setY(player.position.y + 3.2);
+                        playerHpBarGroup.lookAt(camera.position);
+                        playerHpBarFg.scale.x = Math.max(0.001, playerHp / maxPlayerHp);
+                    } else {
+                        playerHpBarGroup.visible = false;
+                    }
+                }
+
                 // -------- Player Local Logic --------
                 for (let i = particles.length - 1; i >= 0; i--) {
                     let p = particles[i];
@@ -1627,7 +1659,6 @@
 
                     if ((moveX !== 0 || moveZ !== 0) && !isSpinning) {
                         player.rotation.y = Math.atan2(moveX, moveZ);
-                        // นำล้อออก จึงลบส่วนการหมุนล้อออกไป
                     }
 
                     let nextX = player.position.x + moveX; let nextZ = player.position.z + moveZ;
@@ -1648,7 +1679,7 @@
                     } else { gunGroup.position.z = THREE.MathUtils.lerp(gunGroup.position.z, 0.5, 0.2); }
                 }
 
-                // -------- Player Projectiles (Client Side Hit Detection) --------
+                // -------- Player Projectiles --------
                 for (let i = playerProjectiles.length - 1; i >= 0; i--) {
                     let p = playerProjectiles[i];
                     p.mesh.position.x += p.vx; p.mesh.position.z += p.vz; p.life--;
@@ -1661,8 +1692,6 @@
                         if (dx*dx + dz*dz < 2.25) { 
                             hit = true;
                             createExplosion(p.mesh.position.x, p.mesh.position.y, p.mesh.position.z);
-                            
-                            // ส่ง Damage ขึ้น Firebase ทันทีที่โดน (รวมตัวใกล้เคียง)
                             for (let k = enemies.length - 1; k >= 0; k--) {
                                 let e2 = enemies[k];
                                 let dx2 = e2.mesh.position.x - p.mesh.position.x; let dz2 = e2.mesh.position.z - p.mesh.position.z;
@@ -1679,25 +1708,40 @@
                     if(exp.life <= 0) { scene.remove(exp.mesh); explosions.splice(i, 1); }
                 }
 
-                // -------- Enemy AI Logic (HOST ONLY) & Common updates --------
+                // -------- Enemy AI Logic & Tentacle Animation --------
                 let closestBugDist = Infinity;
                 let closestBug = null;
-                let enemiesBatchUpdate = {}; // เก็บข้อมูลอัพเดทพร้อมกัน
+                let enemiesBatchUpdate = {}; 
                 
                 for (let i = enemies.length - 1; i >= 0; i--) {
                     let bug = enemies[i];
 
-                    // อัปเดตขีดเลือดของแมลงให้หันเข้าหากล้อง และขนาดลดลงตามเลือด (ทำทั้ง Host และ Client)
+                    // อัปเดตขีดเลือดของแมลงให้หันเข้าหากล้อง
                     if (bug.mesh.userData.hpBarGroup) {
+                        bug.mesh.userData.hpBarGroup.position.copy(bug.mesh.position).setY(bug.mesh.position.y + (bug.isBoss ? 6.5 : 1.5));
                         bug.mesh.userData.hpBarGroup.lookAt(camera.position);
-                    }
-                    if (bug.mesh.userData.hpBarFg) {
                         let hpRatio = bug.hp / (bug.maxHp || 1);
                         if(isNaN(hpRatio)) hpRatio = 1;
                         bug.mesh.userData.hpBarFg.scale.x = Math.max(0.001, Math.min(1, hpRatio));
                     }
 
-                    // หาตัวที่ใกล้ที่สุดเพื่อล็อคเป้า
+                    // แอนิเมชันหนวดปลาหมึกเวลาเดินและโจมตี
+                    if (bug.isBoss && bug.mesh.userData.tentacles) {
+                        let distToBase = Math.sqrt(bug.mesh.position.x**2 + bug.mesh.position.z**2);
+                        let distToMe = Math.sqrt((player.position.x - bug.mesh.position.x)**2 + (player.position.z - bug.mesh.position.z)**2);
+                        // ถ้าใกล้ฐานหรือผู้เล่นจะฟาดหนวดเร็วขึ้น (กำลังโจมตี)
+                        let isAttackingLocal = (distToBase < 6.0 || distToMe < 3.5);
+                        let tSpeed = isAttackingLocal ? 25 : 5;
+                        let tAmp = isAttackingLocal ? 1.2 : 0.3;
+                        for(let t=0; t<8; t++) {
+                            let ten = bug.mesh.userData.tentacles[t];
+                            let baseAng = bug.mesh.userData.tentacleAngles[t];
+                            let offset = Math.sin(now * 0.001 * tSpeed + baseAng) * tAmp;
+                            ten.rotation.x = Math.cos(baseAng) * 0.5 + Math.cos(baseAng) * offset;
+                            ten.rotation.z = -Math.sin(baseAng) * 0.5 - Math.sin(baseAng) * offset;
+                        }
+                    }
+
                     if (!isDead) {
                         let pdx = player.position.x - bug.mesh.position.x;
                         let pdz = player.position.z - bug.mesh.position.z;
@@ -1712,7 +1756,6 @@
                         let target = { x: 0, z: 0, isBase: true };
                         let minDistToPlayer = Infinity;
                         
-                        // หาเป้าหมายที่ใกล้ที่สุด (รวมผู้เล่นและเพื่อนในห้อง)
                         if (!isDead) {
                             minDistToPlayer = closestBugDist;
                             target = { x: player.position.x, z: player.position.z, isBase: false, isMe: true };
@@ -1738,7 +1781,6 @@
 
                         if (distToTarget > 0.1) bug.mesh.rotation.y = Math.atan2(dx, dz);
 
-                        // โจมตีเป้าหมาย
                         let atkRangePlayer = bug.isBoss ? 2.5 : 1.5;
                         let atkRangeBase = bug.isBoss ? 5.5 : 3.5;
 
@@ -1748,16 +1790,19 @@
                                 bMoveX = (dx/distToTarget) * bug.speed; bMoveZ = (dz/distToTarget) * bug.speed;
                             } else {
                                 baseHp -= bug.isBoss ? 1.0 : 0.2; 
-                                setFirebaseGameState({ baseHp }); // Host อัพเดทเลือดฐาน
+                                setFirebaseGameState({ baseHp }); 
                             }
                         } else {
                             if (distToTarget > (bug.isBoss ? 2.0 : 1.2)) {
                                 bMoveX = (dx/distToTarget) * bug.speed; bMoveZ = (dz/distToTarget) * bug.speed;
                             } else {
-                                // ถ้าแมลงตีHost เอง ให้ลด HP Host 
                                 if (target.isMe) {
                                     playerHp -= bug.isBoss ? 0.5 : 0.15;
-                                    if (now - lastBiteSound > 400) { playSound('bite'); spawnParticles(player.position, 0xff0000, 5, 1.0); lastBiteSound = now; }
+                                    if (now - lastBiteSound > 400) { 
+                                        playSound(bug.isBoss ? 'smash' : 'bite'); 
+                                        spawnParticles(player.position, 0xff0000, 5, 1.0); 
+                                        lastBiteSound = now; 
+                                    }
                                     if(playerHp <= 0) triggerPlayerDeath(); 
                                 }
                             }
@@ -1769,7 +1814,6 @@
                             if (!checkCollision(bug.mesh.position.x, bnz)) bug.mesh.position.z = bnz;
                         }
 
-                        // เตรียมส่งตำแหน่งอัพเดทไป Firebase ทุกๆ 50ms 
                         if (now - lastEnemyBroadcast > 50) {
                             enemiesBatchUpdate[`${bug.id}/x`] = parseFloat(bug.mesh.position.x.toFixed(2));
                             enemiesBatchUpdate[`${bug.id}/y`] = parseFloat(bug.mesh.position.y.toFixed(2));
@@ -1777,20 +1821,22 @@
                             enemiesBatchUpdate[`${bug.id}/rotY`] = parseFloat(bug.mesh.rotation.y.toFixed(2));
                         }
                     } else {
-                        // CLIENT Logic (โดนแมลงโจมตี)
+                        // CLIENT Logic โดนโจมตี
                         let pdx = player.position.x - bug.mesh.position.x;
                         let pdz = player.position.z - bug.mesh.position.z;
                         if (!isDead && Math.sqrt(pdx*pdx + pdz*pdz) < (bug.isBoss ? 2.5 : 1.5)) {
                             playerHp -= bug.isBoss ? 0.5 : 0.15;
-                            if (now - lastBiteSound > 400) { playSound('bite'); spawnParticles(player.position, 0xff0000, 5, 1.0); lastBiteSound = now; }
+                            if (now - lastBiteSound > 400) { 
+                                playSound(bug.isBoss ? 'smash' : 'bite'); 
+                                spawnParticles(player.position, 0xff0000, 5, 1.0); 
+                                lastBiteSound = now; 
+                            }
                             if(playerHp <= 0) triggerPlayerDeath(); 
                         }
                     }
                 }
 
-                // อัพเดตตำแหน่งแมลงไป Firebase 
                 if (isHost && Object.keys(enemiesBatchUpdate).length > 0) {
-                    // กรองส่งเฉพาะแมลงที่ยังมีชีวิตอยู่ ป้องกันส่งอัปเดตผีดิบกลับไป
                     let safeBatchUpdate = {};
                     for (let key in enemiesBatchUpdate) {
                         let bugId = key.split('/')[0];
@@ -1807,14 +1853,12 @@
                 // -------- Player Melee Attacks --------
                 if (!isDead) {
                     if (!isSpinning && (now - lastAttackTime > attackSpeedMs) && gamePhase !== 'LOBBY') {
-                        // เช็คว่ามีแมลงตัวไหนอยู่ในระยะฟาดค้อน (ขยายเป็น 5.5 เพื่อให้ตีบอสง่ายขึ้น)
                         if (closestBug && closestBugDist < 5.5) { 
                             lastAttackTime = now; attackTimer = attackAnimSpeed; 
                             hammerGroup.rotation.x = Math.PI * 0.75; hammerGroup.rotation.y = 0; hammerGroup.rotation.z = 0;
                             
                             playSound('hit'); 
                             
-                            // โจมตีแมลง *ทุกตัว* ที่อยู่ในรัศมีการฟาด
                             for (let i = enemies.length - 1; i >= 0; i--) {
                                 let bug = enemies[i];
                                 let pdx = player.position.x - bug.mesh.position.x;
@@ -1836,20 +1880,18 @@
                             hammerGroup.rotation.z = THREE.MathUtils.lerp(hammerGroup.rotation.z, 0, 0.2);
                         }
                     } else {
-                        // พายุหมุน (Spin Attack)
                         let spinSpeed = Math.PI * 8 * delta; player.rotation.y += spinSpeed; spinRotations += spinSpeed / (Math.PI * 2);
                         
-                        // ปรับให้ทำดาเมจแค่ทุกๆ 150ms ระหว่างหมุน ป้องกันการส่งข้อมูลรั่วทำให้เซิร์ฟเวอร์รวน (บั๊กตีไม่เข้า)
                         if (!player.lastSpinTime || now - player.lastSpinTime > 150) {
                             player.lastSpinTime = now;
                             let hitSomething = false;
                             for (let i = enemies.length - 1; i >= 0; i--) {
                                 let bug = enemies[i];
                                 let pdx = player.position.x - bug.mesh.position.x; let pdz = player.position.z - bug.mesh.position.z;
-                                if (Math.sqrt(pdx*pdx + pdz*pdz) < 6.0) { // ขยายรัศมีพายุเป็น 6.0
+                                if (Math.sqrt(pdx*pdx + pdz*pdz) < 6.0) { 
                                     hitSomething = true;
                                     spawnParticles(bug.mesh.position, 0xffaa00, 5, 1.5);
-                                    dealDamageToEnemy(bug.id, playerDamage * 1.5); // หมุนแรงกว่าตีปกติ 1.5 เท่า
+                                    dealDamageToEnemy(bug.id, playerDamage * 1.5); 
                                 }
                             }
                             if (hitSomething) playSound('hit');
