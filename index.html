@@ -145,7 +145,7 @@
         </div>
     </div>
 
-    <!-- ปุ่มตั้งค่า (ย้ายขยับลงมานิดหน่อยเพื่อไม่ให้ชนกับ Stats ถ้าจำเป็น) -->
+    <!-- ปุ่มตั้งค่า -->
     <button id="settings-btn" class="absolute top-5 right-5 z-40 bg-gray-800/70 text-white p-3 rounded-full hover:bg-gray-700 backdrop-blur-sm transition-all shadow-lg border border-white/20 pointer-events-auto">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -160,10 +160,10 @@
             <div class="space-y-5">
                 <div>
                     <div class="flex justify-between">
-                        <label class="font-semibold text-sm">ความเร็วการเดิน</label>
-                        <span id="speed-val" class="text-sm text-blue-600 font-bold">ปกติ</span>
+                        <label class="font-semibold text-sm">ระดับเสียงดนตรี (BGM)</label>
+                        <span id="volume-val" class="text-sm text-blue-600 font-bold">100%</span>
                     </div>
-                    <input type="range" id="setting-speed" min="0.05" max="0.4" step="0.01" value="0.15" class="w-full mt-2 accent-blue-600">
+                    <input type="range" id="setting-volume" min="0" max="1" step="0.1" value="1" class="w-full mt-2 accent-blue-600">
                 </div>
                 <div>
                     <div class="flex justify-between">
@@ -354,9 +354,9 @@
 
         let isSpinning = false;
         let spinRotations = 0;
-        const spinTargetRotations = 1; 
+        const spinTargetRotations = 20; 
         let skillCooldownTimer = 0;
-        const skillCooldownMax = 5; 
+        const skillCooldownMax = 20; 
         
         let isDead = false;
         let respawnTimer = 0;
@@ -381,12 +381,64 @@
         // ระบบเสียงสังเคราะห์ (Web Audio API)
         // -----------------------------------------
         let audioCtx;
+        let bgmInterval = null;
+        let isBgmPlaying = false;
+        let bgmVolume = 1.0; // ค่าความดังเริ่มต้น 100%
+
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
+            }
+        }
+
+        // ระบบ BGM จังหวะเร้าใจ (ตื่นเต้น) ตอนโจมตี
+        function playBGM() {
+            if (!audioCtx || audioCtx.state === 'suspended') return;
+            if (bgmInterval) return;
+
+            isBgmPlaying = true;
+            let step = 0;
+
+            bgmInterval = setInterval(() => {
+                if (!isBgmPlaying) {
+                    clearInterval(bgmInterval);
+                    bgmInterval = null;
+                    return;
+                }
+                
+                const now = audioCtx.currentTime;
+                
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'triangle'; // เสียงเบสทุ้มๆ แหลมๆ
+                let freq = (step % 4 === 0) ? 80 : 60; // ไล่จังหวะเบสเพิ่มความตื่นเต้น
+                let baseVol = (step % 4 === 0) ? 0.15 : 0.1;
+                let finalVol = baseVol * bgmVolume; // คูณกับตั้งค่าความดัง
+
+                osc.frequency.setValueAtTime(freq, now);
+                
+                gain.gain.setValueAtTime(finalVol, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(now);
+                osc.stop(now + 0.25);
+                
+                step++;
+            }, 250); // จังหวะเร็วเพื่อความตื่นเต้น
+        }
+
+        function stopBGM() {
+            isBgmPlaying = false;
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
             }
         }
 
@@ -584,6 +636,7 @@
                 remove(ref(database, `rooms/${currentRoomId}/players/${currentUserUid}`)).catch(()=>{});
             }
             
+            stopBGM(); // หยุดเล่นเพลงหากออกไปหน้าห้อง
             firebaseUnsubs.forEach(unsub => unsub());
             firebaseUnsubs = [];
             
@@ -677,13 +730,34 @@
         let playerVelocity = new THREE.Vector3();
         const GRAVITY = 0.015;
         
-        let moveSpeed = 0.15;
+        let moveSpeed = 0.15; // ใช้ความเร็วเดินปกติ
         let ambientLight, sunLight;
 
         window.onload = function() {
             init();
             animate();
         };
+
+        // ฟังก์ชันตั้งค่าโหมดกลางวัน/กลางคืนแบบอัตโนมัติ
+        let isNightMode = false;
+        function setNightMode(night) {
+            if (isNightMode === night) return;
+            isNightMode = night;
+            const checkbox = document.getElementById('setting-night');
+            if (checkbox) checkbox.checked = night;
+
+            if (night) {
+                scene.background.setHex(0x0a1128); 
+                scene.fog.color.setHex(0x0a1128); 
+                ambientLight.intensity = 0.15; 
+                sunLight.intensity = 0.2;
+            } else {
+                scene.background.setHex(0x87ceeb); 
+                scene.fog.color.setHex(0x87ceeb); 
+                ambientLight.intensity = 0.6; 
+                sunLight.intensity = 0.8;
+            }
+        }
 
         // ฟังก์ชันสร้างหลอดเลือดแบบ 3D ทั่วไป
         function createHPBarMesh(w, h, bgColor = 0xff0000, fgColor = 0x00ff00) {
@@ -998,7 +1072,6 @@
             group.userData.hpBarGroup = hpBar.group;
             group.userData.hpBarFg = hpBar.fg;
             
-            // หมายเหตุ: ไม่ add ใส่ group ของศัตรูโดยตรงแล้ว เพราะจะทำให้มันหมุนตอนศัตรูหันหน้า จะนำไปแอดลง Scene แทน
             return group;
         }
 
@@ -1193,6 +1266,7 @@
             deathCount++;
             respawnTimer = 3 + (deathCount * 2); 
             
+            stopBGM(); // หยุดเพลงเมื่อตาย
             playSound('explode');
             spawnParticles(player.position, 0x9e9e9e, 40, 2.5); 
             
@@ -1323,7 +1397,7 @@
             };
 
             document.addEventListener('mousedown', onPointerDown); document.addEventListener('mousemove', onPointerMove); document.addEventListener('mouseup', onPointerUp);
-            document.addEventListener('touchstart', onPointerDown, {passive: false}); document.addEventListener('touchmove', onPointerMove, {passive: false}); document.addEventListener('touchend', onPointerUp);
+            document.addEventListener('touchstart', onPointerDown, {passive: false}); document.addEventListener('touchmove', onPointerMove, {passive: false}); document.addEventListener('touchmove', onPointerUp);
         }
 
         function initMultiplayer() {
@@ -1526,11 +1600,14 @@
             document.getElementById('settings-btn').addEventListener('click', () => modal.classList.remove('hidden'));
             document.getElementById('close-settings').addEventListener('click', () => modal.classList.add('hidden'));
 
-            document.getElementById('setting-speed').addEventListener('input', (e) => { moveSpeed = parseFloat(e.target.value); document.getElementById('speed-val').textContent = moveSpeed > 0.25 ? 'เร็วมาก' : (moveSpeed < 0.1 ? 'ช้า' : 'ปกติ'); });
+            // เปลียนจากตั้งค่าความเร็ว เป็นตั้งค่าความดังเสียงดนตรี (BGM)
+            document.getElementById('setting-volume').addEventListener('input', (e) => { 
+                bgmVolume = parseFloat(e.target.value); 
+                document.getElementById('volume-val').textContent = Math.round(bgmVolume * 100) + '%'; 
+            });
             document.getElementById('setting-camera').addEventListener('input', (e) => { cameraDistZ = parseFloat(e.target.value); document.getElementById('camera-val').textContent = cameraDistZ + 'm'; });
             document.getElementById('setting-night').addEventListener('change', (e) => {
-                if(e.target.checked) { scene.background.setHex(0x0a1128); scene.fog.color.setHex(0x0a1128); ambientLight.intensity = 0.15; sunLight.intensity = 0.2;
-                } else { scene.background.setHex(0x87ceeb); scene.fog.color.setHex(0x87ceeb); ambientLight.intensity = 0.6; sunLight.intensity = 0.8; }
+                setNightMode(e.target.checked);
             });
         }
 
@@ -1540,6 +1617,7 @@
 
         function triggerGameOver() {
             gameOver = true;
+            stopBGM(); // หยุดเพลงเมื่อจบเกม
             baseCrystal.material.color.setHex(0x111111); baseCrystal.material.emissive.setHex(0x000000); healingAura.visible = false; 
             document.getElementById('game-over-screen').classList.remove('hidden');
         }
@@ -1569,6 +1647,13 @@
 
             if (window.isPlaying && !gameOver) {
 
+                // -------- จัดการเสียง BGM --------
+                if (!isDead && (gamePhase === 'WAVE' || gamePhase === 'PREP')) {
+                    if (!isBgmPlaying) playBGM();
+                } else {
+                    if (isBgmPlaying) stopBGM();
+                }
+
                 // -------- Game State Management (Host Only) --------
                 if (isHost && gamePhase !== 'LOBBY') {
                     if (gamePhase === 'PREP') {
@@ -1593,7 +1678,8 @@
                             spawnEnemy(true, 0); spawnEnemy(true, Math.PI/2); spawnEnemy(true, Math.PI); spawnEnemy(true, Math.PI*1.5);
                             bossesSpawned = true;
                         } else if (enemies.length === 0) {
-                            setFirebaseGameState({ phase: 'WAIT', phaseTimer: 120 });
+                            // ปรับเวลาพักการโจมตีเป็น 1 นาที (60 วินาที)
+                            setFirebaseGameState({ phase: 'WAIT', phaseTimer: 60 });
                         }
                     } 
                     else if (gamePhase === 'WAIT') {
@@ -1614,6 +1700,10 @@
                 else if (gamePhase === 'PREP') updateTopHUD(`เตรียมรับมือฝูงแมลงใน: ${formatTime(Math.max(0, phaseTimer))}`);
                 else if (gamePhase === 'WAVE') updateTopHUD(`ศัตรูบุกรอบที่ ${currentWave} (เหลือศัตรู ${enemies.length + (isHost ? enemiesToSpawn : 0)} ตัว)`);
                 else if (gamePhase === 'WAIT') updateTopHUD(`พักการรบ เริ่มรอบถัดไปใน: ${formatTime(Math.max(0, phaseTimer))}`);
+
+                // -------- Auto Night Mode --------
+                // เปลี่ยนเป็นตอนกลางคืนโดยอัตโนมัติเมื่อถึงช่วงเวลาโจมตี (WAVE)
+                setNightMode(gamePhase === 'WAVE');
 
                 if (skillCooldownTimer > 0) { skillCooldownTimer -= delta; if (skillCooldownTimer < 0) skillCooldownTimer = 0; }
 
