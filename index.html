@@ -95,7 +95,7 @@
 
     <div class="ui-overlay">
         <h1 class="text-3xl font-bold">Defend the Base!</h1>
-        <p class="text-lg">คลิกที่ฐานพลังงานเพื่อเปิดร้านค้า (ซื้อกระสุน/เลเวล)</p>
+        <p class="text-lg">คลิกที่ฐานพลังงานเพื่อเปิดร้านค้า (ซื้อกระสุน/ยา/เลเวล)</p>
         <p id="host-badge" class="text-sm text-yellow-300 font-bold hidden">👑 คุณคือหัวหน้าห้อง (Host)</p>
     </div>
 
@@ -109,6 +109,7 @@
         <div class="bg-black/60 p-4 rounded-xl backdrop-blur-md border border-white/20 inline-block text-left shadow-lg">
             <div class="text-yellow-400 font-bold text-lg drop-shadow-md mb-1">🪙 เหรียญ: <span id="coin-text">0</span></div>
             <div class="text-red-400 font-bold text-lg drop-shadow-md mb-1">💣 กระสุน: <span id="ammo-text">0</span></div>
+            <div class="text-green-400 font-bold text-lg drop-shadow-md mb-1">🩹 ยาฟื้นฟู: <span id="potion-text">0</span></div>
             <div class="text-purple-400 font-bold text-lg drop-shadow-md mb-2">⭐ เลเวล: <span id="level-text">1</span></div>
             <div class="text-white text-xs border-t border-white/30 pt-2">ดาเมจ: <span id="damage-text">20</span> | ความเร็วตี: <span id="spd-text">ปกติ</span></div>
         </div>
@@ -124,7 +125,7 @@
     </div>
 
     <div class="controls-hint hidden lg:block">
-        W A S D เดิน | Space ยิงระเบิด | ลากเมาส์หมุนกล้อง<br><b>คลิกที่ฐานเพื่อเปิดร้านค้า (ซื้อกระสุน 10 เหรียญ / อัปเลเวล 100 เหรียญ)</b>
+        W A S D เดิน | Space ยิงระเบิด | Z ใช้ยาฟื้นฟู | ลากเมาส์หมุนกล้อง<br><b>คลิกที่ฐานเพื่อเปิดร้านค้า</b>
     </div>
 
     <div class="mobile-layout lg:hidden">
@@ -140,8 +141,9 @@
             <div class="hidden-cell"></div>
         </div>
         <div class="action-btn flex gap-2">
-            <div id="btn-skill" class="btn-ctrl jump-btn !bg-yellow-600/60 !border-yellow-400">พายุค้อน</div>
-            <div id="btn-shoot" class="btn-ctrl jump-btn !bg-red-600/60 !border-red-400">ยิง</div>
+            <div id="btn-potion" class="btn-ctrl jump-btn !bg-green-600/60 !border-green-400 text-sm">ยา(Z)</div>
+            <div id="btn-skill" class="btn-ctrl jump-btn !bg-yellow-600/60 !border-yellow-400 text-sm">พายุค้อน</div>
+            <div id="btn-shoot" class="btn-ctrl jump-btn !bg-red-600/60 !border-red-400 text-sm">ยิง</div>
         </div>
     </div>
 
@@ -220,6 +222,9 @@
             <div class="space-y-4">
                 <button id="btn-shop-ammo" class="w-full bg-red-500 hover:bg-red-600 text-white px-5 py-4 rounded-xl font-bold flex justify-between items-center shadow-md active:scale-95 transition-transform">
                     <span class="text-lg">💣 กระสุนระเบิด</span> <span class="bg-black/30 px-3 py-1 rounded-lg">10 🪙</span>
+                </button>
+                <button id="btn-shop-potion" class="w-full bg-green-500 hover:bg-green-600 text-white px-5 py-4 rounded-xl font-bold flex justify-between items-center shadow-md active:scale-95 transition-transform">
+                    <span class="text-lg">🩹 ยาฟื้นฟู (HP)</span> <span class="bg-black/30 px-3 py-1 rounded-lg">100 🪙</span>
                 </button>
                 <button id="btn-shop-level" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-5 py-4 rounded-xl font-bold flex justify-between items-center shadow-md active:scale-95 transition-transform">
                     <span class="text-lg">⭐ อัปเลเวล (Level Up)</span> <span class="bg-black/30 px-3 py-1 rounded-lg">100 🪙</span>
@@ -355,6 +360,7 @@
         let attackSpeedMs = 500; 
         let attackAnimSpeed = 15; 
         let playerAmmo = 0; 
+        let playerPotions = 0; // ยาฟื้นฟู
         let playerProjectiles = []; 
         let explosions = []; 
 
@@ -411,7 +417,7 @@
         let audioCtx;
         let bgmInterval = null;
         let isBgmPlaying = false;
-        let bgmVolume = 1.0; // ค่าความดังเริ่มต้น 100%
+        let bgmVolume = 1.0; 
 
         function initAudio() {
             if (!audioCtx) {
@@ -443,9 +449,9 @@
                 const gain = audioCtx.createGain();
                 
                 osc.type = 'triangle'; // เสียงเบสทุ้มๆ แหลมๆ
-                let freq = (step % 4 === 0) ? 80 : 60; // ไล่จังหวะเบสเพิ่มความตื่นเต้น
+                let freq = (step % 4 === 0) ? 80 : 60; 
                 let baseVol = (step % 4 === 0) ? 0.15 : 0.1;
-                let finalVol = baseVol * bgmVolume; // คูณกับตั้งค่าความดัง
+                let finalVol = baseVol * bgmVolume; 
 
                 osc.frequency.setValueAtTime(freq, now);
                 
@@ -688,7 +694,7 @@
             for (let e of explosions) scene.remove(e.mesh); explosions = [];
             for (let p of particles) scene.remove(p.mesh); particles = [];
             
-            playerHp = maxPlayerHp; baseHp = maxBaseHp; coins = 0; playerAmmo = 0; playerLevel = 1; playerDamage = 20; attackSpeedMs = 500;
+            playerHp = maxPlayerHp; baseHp = maxBaseHp; coins = 0; playerAmmo = 0; playerPotions = 0; playerLevel = 1; playerDamage = 20; attackSpeedMs = 500;
             player.position.set(5, 0, 0); playerVelocity.set(0, 0, 0); player.visible = true;
             
             if (baseCrystal) { 
@@ -936,6 +942,18 @@
                     updateHUD(); 
                 } else { 
                     showAlert("เหรียญไม่พอซื้อกระสุน!"); 
+                }
+            });
+
+            document.getElementById('btn-shop-potion').addEventListener('click', () => {
+                if (coins >= 100) { 
+                    coins -= 100; 
+                    playerPotions++; 
+                    playSound('coin'); 
+                    document.getElementById('shop-coins').innerText = coins;
+                    updateHUD(); 
+                } else { 
+                    showAlert("เหรียญไม่พอซื้อยาฟื้นฟู (ต้องใช้ 100 เหรียญ)!"); 
                 }
             });
             
@@ -1257,16 +1275,30 @@
 
         function createPlayer() {
             player = new THREE.Group();
+            player.userData = {};
             const chassisGroup = new THREE.Group();
 
             playerBodyMat = new THREE.MeshStandardMaterial({ color: parseInt(playerColorHex), metalness: 0.7, roughness: 0.3 });
 
-            const bodyGeo = new THREE.SphereGeometry(0.65, 32, 32);
-            bodyGeo.scale(1, 1.4, 1); 
+            // ลำตัวแบบกล่อง
+            const bodyGeo = new THREE.BoxGeometry(1.2, 1.0, 0.8); 
             const chassisCenter = new THREE.Mesh(bodyGeo, playerBodyMat);
-            chassisCenter.position.y = 0.91; 
+            chassisCenter.position.y = 1.0; 
             chassisCenter.castShadow = true;
             chassisGroup.add(chassisCenter);
+
+            // ขาเดิน
+            const legGeo = new THREE.BoxGeometry(0.3, 0.8, 0.3);
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.8 });
+            
+            const legL = new THREE.Mesh(legGeo, legMat); legL.castShadow = true;
+            const legLGroup = new THREE.Group(); legLGroup.position.set(-0.3, 0.6, 0); legL.position.set(0, -0.4, 0); legLGroup.add(legL); chassisGroup.add(legLGroup);
+            
+            const legR = new THREE.Mesh(legGeo, legMat); legR.castShadow = true;
+            const legRGroup = new THREE.Group(); legRGroup.position.set(0.3, 0.6, 0); legR.position.set(0, -0.4, 0); legRGroup.add(legR); chassisGroup.add(legRGroup);
+            
+            player.userData.legL = legLGroup;
+            player.userData.legR = legRGroup;
 
             gunGroup = new THREE.Group();
             const gunBarrelGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.8, 8);
@@ -1274,29 +1306,47 @@
             const gunBarrel = new THREE.Mesh(gunBarrelGeo, gunBarrelMat);
             gunBarrel.rotation.x = Math.PI / 2;
             gunGroup.add(gunBarrel);
-            gunGroup.position.set(0, 0.91, 0.5); 
+            gunGroup.position.set(0, 1.0, 0.5); 
             chassisGroup.add(gunGroup);
 
             player.add(chassisGroup);
 
-            const headGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-            const headMat = new THREE.MeshStandardMaterial({ color: 0x757575, metalness: 0.8 });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 2.01; 
-            head.castShadow = true;
-            player.add(head);
+            // หัวทีวีจอนูน
+            const headGroup = new THREE.Group();
+            headGroup.position.y = 1.9;
 
-            const faceMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc }); 
-            const eyeGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.05, 16); eyeGeo.rotateX(Math.PI / 2); 
-            const eyeL = new THREE.Mesh(eyeGeo, faceMat); eyeL.position.set(-0.2, 2.11, 0.41); player.add(eyeL);
-            const eyeR = new THREE.Mesh(eyeGeo, faceMat); eyeR.position.set(0.2, 2.11, 0.41); player.add(eyeR);
+            const tvGeo = new THREE.BoxGeometry(1.4, 1.1, 1.0);
+            const tvCase = new THREE.Mesh(tvGeo, playerBodyMat);
+            tvCase.castShadow = true;
+            headGroup.add(tvCase);
 
-            const smileGeo = new THREE.TorusGeometry(0.18, 0.04, 8, 16, Math.PI);
-            const smile = new THREE.Mesh(smileGeo, faceMat);
-            smile.position.set(0, 1.91, 0.41); smile.rotation.z = Math.PI; player.add(smile);
+            // จอนูน (Convex Screen)
+            const screenGeo = new THREE.SphereGeometry(0.75, 16, 16);
+            screenGeo.scale(1, 0.7, 0.3);
+            const screenMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc }); 
+            const screen = new THREE.Mesh(screenGeo, screenMat);
+            screen.position.set(0, 0, 0.45);
+            headGroup.add(screen);
+
+            const faceMat = new THREE.MeshBasicMaterial({ color: 0x005544 }); 
+            const eyeGeo = new THREE.BoxGeometry(0.15, 0.15, 0.05); 
+            const eyeL = new THREE.Mesh(eyeGeo, faceMat); eyeL.position.set(-0.3, 0.1, 0.7); headGroup.add(eyeL);
+            const eyeR = new THREE.Mesh(eyeGeo, faceMat); eyeR.position.set(0.3, 0.1, 0.7); headGroup.add(eyeR);
+
+            const smileGeo = new THREE.BoxGeometry(0.4, 0.08, 0.05);
+            const smileMesh = new THREE.Mesh(smileGeo, faceMat);
+            smileMesh.position.set(0, -0.15, 0.7);
+            headGroup.add(smileMesh);
+
+            const antGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.5);
+            const antMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+            const ant1 = new THREE.Mesh(antGeo, antMat); ant1.position.set(-0.3, 0.7, 0); ant1.rotation.z = 0.3; headGroup.add(ant1);
+            const ant2 = new THREE.Mesh(antGeo, antMat); ant2.position.set(0.3, 0.7, 0); ant2.rotation.z = -0.3; headGroup.add(ant2);
+
+            player.add(headGroup);
 
             hammerGroup = new THREE.Group();
-            hammerGroup.position.set(0.8, 1.11, 0); 
+            hammerGroup.position.set(0.9, 1.11, 0); 
             const handleGeo = new THREE.CylinderGeometry(0.05, 0.05, 1.2);
             const handleMat = new THREE.MeshStandardMaterial({ color: 0x5d4037 });
             const handle = new THREE.Mesh(handleGeo, handleMat); handle.position.y = -0.3; hammerGroup.add(handle);
@@ -1343,6 +1393,16 @@
                     vz: forward.z * 1.0,
                     life: 60 
                 });
+            }
+        }
+
+        function usePotion() {
+            if (playerPotions > 0 && playerHp < maxPlayerHp && !isDead && gamePhase !== 'LOBBY') {
+                playerPotions--;
+                playerHp = maxPlayerHp; // ฟื้นฟูเลือดจนเต็ม
+                playSound('coin'); 
+                spawnParticles(player.position, 0x00ff00, 30, 2.0); // เอฟเฟกต์สีเขียว
+                updateHUD();
             }
         }
 
@@ -1423,6 +1483,7 @@
                 if (e.code === 'ArrowLeft' || e.code === 'KeyA') moveState.left = true;
                 if (e.code === 'ArrowRight' || e.code === 'KeyD') moveState.right = true;
                 if (e.code === 'Space') { e.preventDefault(); shoot(); } 
+                if (e.code === 'KeyZ' || e.key === 'z' || e.key === 'Z') usePotion(); 
                 if (e.code === 'KeyX' || e.key === 'x' || e.key === 'X') activateSkill(); 
             });
 
@@ -1450,6 +1511,8 @@
             document.getElementById('btn-skill').addEventListener('mousedown', () => activateSkill());
             document.getElementById('btn-shoot').addEventListener('touchstart', (e) => { e.preventDefault(); shoot(); });
             document.getElementById('btn-shoot').addEventListener('mousedown', () => shoot());
+            document.getElementById('btn-potion').addEventListener('touchstart', (e) => { e.preventDefault(); usePotion(); });
+            document.getElementById('btn-potion').addEventListener('mousedown', () => usePotion());
 
             const onPointerDown = (e) => {
                 if (e.target.closest('.btn-ctrl') || e.target.closest('button') || e.target.closest('input')) return;
@@ -1644,24 +1707,61 @@
         function updateOtherPlayer(id, data) {
             if (!otherPlayers[id]) {
                 const pGroup = new THREE.Group();
-                const chassisGroup = new THREE.Group();
+                pGroup.userData = {};
                 
                 const colorToUse = data.color ? parseInt(data.color) : 0x2196f3;
-                const bodyMat = new THREE.MeshStandardMaterial({ color: colorToUse, metalness: 0.7 });
-                const bodyGeo = new THREE.SphereGeometry(0.65, 32, 32); bodyGeo.scale(1, 1.4, 1);
-                const chassisCenter = new THREE.Mesh(bodyGeo, bodyMat); chassisCenter.position.y = 0.91; chassisCenter.castShadow = true; chassisGroup.add(chassisCenter);
+                const bodyMat = new THREE.MeshStandardMaterial({ color: colorToUse, metalness: 0.7, roughness: 0.3 });
+                
+                const chassisGroup = new THREE.Group();
+                const bodyGeo = new THREE.BoxGeometry(1.2, 1.0, 0.8); 
+                const chassisCenter = new THREE.Mesh(bodyGeo, bodyMat); 
+                chassisCenter.position.y = 1.0; 
+                chassisCenter.castShadow = true; 
+                chassisGroup.add(chassisCenter);
+
+                const legGeo = new THREE.BoxGeometry(0.3, 0.8, 0.3);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.8 });
+                
+                const legL = new THREE.Mesh(legGeo, legMat); legL.castShadow = true;
+                const legLGroup = new THREE.Group(); legLGroup.position.set(-0.3, 0.6, 0); legL.position.set(0, -0.4, 0); legLGroup.add(legL); chassisGroup.add(legLGroup);
+                
+                const legR = new THREE.Mesh(legGeo, legMat); legR.castShadow = true;
+                const legRGroup = new THREE.Group(); legRGroup.position.set(0.3, 0.6, 0); legR.position.set(0, -0.4, 0); legRGroup.add(legR); chassisGroup.add(legRGroup);
+                
+                pGroup.userData.legL = legLGroup;
+                pGroup.userData.legR = legRGroup;
+
                 pGroup.add(chassisGroup);
 
-                const headGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-                const headMat = new THREE.MeshStandardMaterial({ color: 0x757575 });
-                const head = new THREE.Mesh(headGeo, headMat); head.position.y = 2.01; pGroup.add(head);
+                const headGroup = new THREE.Group();
+                headGroup.position.y = 1.9;
+
+                const tvGeo = new THREE.BoxGeometry(1.4, 1.1, 1.0);
+                const tvCase = new THREE.Mesh(tvGeo, bodyMat);
+                tvCase.castShadow = true;
+                headGroup.add(tvCase);
+
+                const screenGeo = new THREE.SphereGeometry(0.75, 16, 16);
+                screenGeo.scale(1, 0.7, 0.3);
+                const screenMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc }); 
+                const screen = new THREE.Mesh(screenGeo, screenMat);
+                screen.position.set(0, 0, 0.45);
+                headGroup.add(screen);
 
                 const faceMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-                const eyeGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.05, 16); eyeGeo.rotateX(Math.PI / 2);
-                const eyeL = new THREE.Mesh(eyeGeo, faceMat); eyeL.position.set(-0.2, 2.11, 0.41); pGroup.add(eyeL);
-                const eyeR = new THREE.Mesh(eyeGeo, faceMat); eyeR.position.set(0.2, 2.11, 0.41); pGroup.add(eyeR);
-                const smileGeo = new THREE.TorusGeometry(0.18, 0.04, 8, 16, Math.PI);
-                const smile = new THREE.Mesh(smileGeo, faceMat); smile.position.set(0, 1.91, 0.41); smile.rotation.z = Math.PI; pGroup.add(smile);
+                const eyeGeo = new THREE.BoxGeometry(0.15, 0.15, 0.05);
+                const eyeL = new THREE.Mesh(eyeGeo, faceMat); eyeL.position.set(-0.3, 0.1, 0.7); headGroup.add(eyeL);
+                const eyeR = new THREE.Mesh(eyeGeo, faceMat); eyeR.position.set(0.3, 0.1, 0.7); headGroup.add(eyeR);
+                
+                const smileGeo = new THREE.BoxGeometry(0.4, 0.08, 0.05);
+                const smile = new THREE.Mesh(smileGeo, faceMat); smile.position.set(0, -0.15, 0.7); headGroup.add(smile);
+
+                const antGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.5);
+                const antMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+                const ant1 = new THREE.Mesh(antGeo, antMat); ant1.position.set(-0.3, 0.7, 0); ant1.rotation.z = 0.3; headGroup.add(ant1);
+                const ant2 = new THREE.Mesh(antGeo, antMat); ant2.position.set(0.3, 0.7, 0); ant2.rotation.z = -0.3; headGroup.add(ant2);
+
+                pGroup.add(headGroup);
 
                 const nameTag = makeTextSprite(data.name || "Ally"); pGroup.add(nameTag);
                 scene.add(pGroup);
@@ -1670,7 +1770,16 @@
                 const hpBar = createHPBarMesh(2, 0.2);
                 scene.add(hpBar.group);
 
-                otherPlayers[id] = { model: pGroup, bodyMat: bodyMat, name: data.name, hpBarGroup: hpBar.group, hpBarFg: hpBar.fg, lastUpdate: Date.now() };
+                otherPlayers[id] = { 
+                    model: pGroup, 
+                    bodyMat: bodyMat, 
+                    name: data.name, 
+                    hpBarGroup: hpBar.group, 
+                    hpBarFg: hpBar.fg, 
+                    lastUpdate: Date.now(),
+                    lastX: data.x || 0,
+                    lastZ: data.z || 0
+                };
             }
             const p = otherPlayers[id];
             
@@ -1739,6 +1848,7 @@
         function updateHUD() {
             document.getElementById('coin-text').innerText = coins; 
             document.getElementById('ammo-text').innerText = playerAmmo;
+            document.getElementById('potion-text').innerText = playerPotions;
             document.getElementById('level-text').innerText = playerLevel; 
             document.getElementById('damage-text').innerText = playerDamage;
             
@@ -1844,6 +1954,26 @@
                     }
                 }
 
+                // -------- Animate Other Players Legs --------
+                for (const id in otherPlayers) {
+                    let op = otherPlayers[id];
+                    if (op.model.visible) {
+                        let dx = op.model.position.x - op.lastX;
+                        let dz = op.model.position.z - op.lastZ;
+                        if (Math.sqrt(dx*dx + dz*dz) > 0.001) {
+                            let swing = Math.sin(now * 0.015) * 0.6;
+                            if (op.model.userData.legL) op.model.userData.legL.rotation.x = swing;
+                            if (op.model.userData.legR) op.model.userData.legR.rotation.x = -swing;
+                        } else {
+                            if (op.model.userData.legL) op.model.userData.legL.rotation.x = THREE.MathUtils.lerp(op.model.userData.legL.rotation.x, 0, 0.2);
+                            if (op.model.userData.legR) op.model.userData.legR.rotation.x = THREE.MathUtils.lerp(op.model.userData.legR.rotation.x, 0, 0.2);
+                        }
+                        // ค่อยๆ ปรับ lastX, lastZ ให้ตามทัน position ปัจจุบันเพื่อหลอกเช็คการขยับ
+                        op.lastX = THREE.MathUtils.lerp(op.lastX, op.model.position.x, 0.1);
+                        op.lastZ = THREE.MathUtils.lerp(op.lastZ, op.model.position.z, 0.1);
+                    }
+                }
+
                 // -------- Player Local Logic --------
                 for (let i = particles.length - 1; i >= 0; i--) {
                     let p = particles[i];
@@ -1863,6 +1993,14 @@
 
                     if ((moveX !== 0 || moveZ !== 0) && !isSpinning) {
                         player.rotation.y = Math.atan2(moveX, moveZ);
+                        // แอนิเมชันขาเดิน
+                        let swing = Math.sin(now * 0.015) * 0.6;
+                        if (player.userData.legL) player.userData.legL.rotation.x = swing;
+                        if (player.userData.legR) player.userData.legR.rotation.x = -swing;
+                    } else {
+                        // หยุดเดิน ขากลับมาตรง
+                        if (player.userData.legL) player.userData.legL.rotation.x = THREE.MathUtils.lerp(player.userData.legL.rotation.x, 0, 0.2);
+                        if (player.userData.legR) player.userData.legR.rotation.x = THREE.MathUtils.lerp(player.userData.legR.rotation.x, 0, 0.2);
                     }
 
                     let nextX = player.position.x + moveX; let nextZ = player.position.z + moveZ;
